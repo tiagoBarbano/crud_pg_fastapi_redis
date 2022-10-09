@@ -1,0 +1,11 @@
+fastapi[all]
+uvicorn
+gunicorn
+pydantic[all]
+motor
+pymongo
+python-decouple
+asyncpg
+sqlalchemy
+redis_om
+fastapi_utils
