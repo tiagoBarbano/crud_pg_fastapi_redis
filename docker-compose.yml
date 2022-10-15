@@ -1,0 +1,179 @@
+version: "3.9"
+services:
+  crud:
+    build: ./
+    volumes:
+      - .:/usr/app
+    ports:
+      - 8001:8001
+    environment:
+      ASYNCPG_URL: postgresql+asyncpg://postgres:changeme@postgres:5432/postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: default
+      REPEAT_EVENT: 30
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.crud.rule=Host(`crud.localhost`)"      
+    depends_on: 
+      - redis
+      - postgres
+    restart: always
+    networks:
+      - trader-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 400M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s   
+  proxy:
+      image: traefik:v2.8
+      command:
+        - '--api.insecure=true'
+        - '--providers.docker'
+        - '--providers.docker.endpoint=unix:///var/run/docker.sock'
+        - '--providers.docker.watch=true'
+        - '--providers.docker.exposedbydefault=true'
+        - '--log.level=DEBUG'
+        - '--entrypoints.web.address=:80'
+        - '--accessLog'
+        # - '--tracing.serviceName=traefik'
+        # - '--tracing.spanNameLimit=250'
+        # - '--tracing.jaeger=true'
+        # - '--tracing.jaeger.samplingServerURL=http://jaeger-all-in-one:5778/sampling'
+        # - '--tracing.jaeger.samplingType=const'
+        # - '--tracing.jaeger.samplingParam=1.0'
+        # - '--tracing.jaeger.localAgentHostPort=jaeger-all-in-one:6831'
+        # - '--tracing.jaeger.propagation=jaeger'
+        # - '--tracing.jaeger.traceContextHeaderName=uber-trace-id'
+        # - '--tracing.jaeger.collector.endpoint=http://jaeger-all-in-one:14268/api/traces?format=jaeger.thrift'
+        - '--metrics.prometheus={}'
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      ports:
+        - '80:80'
+        - '8080:8080'
+      networks:
+        - trader-network
+      deploy:
+        resources:
+          limits:
+            cpus: '0.50'
+            memory: 400M
+          reservations:
+            cpus: '0.25'
+            memory: 400M      
+        restart_policy:
+          #condition: any
+          delay: 5s
+          max_attempts: 3
+          window: 120s
+        update_config:
+          delay: 10s
+          order: start-first
+          parallelism: 1
+        rollback_config:
+          parallelism: 0
+          order: stop-first
+      logging:
+        driver: json-file
+        options:
+          'max-size': '10m'
+          'max-file': '5'
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - trader-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 400M        
+  redis:
+    image: redislabs/redismod
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data/redis
+    restart: always
+    networks:
+      - trader-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 400M        
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring
+    restart: always
+    networks:
+      - trader-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 400M        
+  
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - trader-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 400M        
+  
+volumes:
+  redis_data: {}
+  postgres: {}
+  grafana_data: {}
+
+networks:
+  trader-network:
+

@@ -4,7 +4,6 @@ from app.repository import get_all_users, get_user_by_id, update_user
 from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.cache import get_all
-from fastapi.responses import ORJSONResponse, UJSONResponse, JSONResponse
 from app.model import UserModel
 
 
@@ -16,24 +15,12 @@ async def add_user(user: UserSchema = Body(...), db: AsyncSession = Depends(get_
     new_user = UserModel(nome=user.nome, idade=user.idade, email=user.email)
     db.add(new_user)
     await db.commit()
-    
     return new_user
     
-
 @router.get("/cache")
 async def get_users():
-    try:
-        users = await get_all()
-        
-        if users == []:
-            raise HTTPException(status_code=status.HTTP_204_NO_CONTENT)
-
-        return users
-    except HTTPException as ex:
-        if(hasattr(ex, 'status_code')):
-            raise HTTPException(status_code=ex.status_code)
-        
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    users = await get_all()
+    return users
 
 @router.get("/", response_model=list[UserSchema])
 async def get_users_default(db: AsyncSession = Depends(get_db)):

@@ -1,11 +1,12 @@
 fastapi[all]
 uvicorn
 gunicorn
-pydantic[all]
-motor
-pymongo
+pydantic
 python-decouple
 asyncpg
 sqlalchemy
 redis_om
 fastapi_utils
+starlette_prometheus
+opentelemetry-instrumentation-fastapi==0.32b0
+prometheus-fastapi-instrumentator
