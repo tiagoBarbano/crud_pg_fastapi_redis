@@ -13,7 +13,7 @@ node {
 
         //app = docker.build("tiagoBarbano/crud_pg_fastapi_redis")
         
-        sh "docker build . -t crud:py"
+        sh "docker build --pull --rm -f 'Dockerfile' -t crudpgfastapi:latest ."
         
     }
 
@@ -21,9 +21,16 @@ node {
         /* Ideally, we would run a test framework against our image.
          * For this example, we're using a Volkswagen-type approach ;-) */
 
-        app.inside {
-            sh 'echo "Tests passed"'
-        }
+        sh 'echo "Tests passed"'
+        
+    }
+
+    stage('Run image') {
+        /* Ideally, we would run a test framework against our image.
+         * For this example, we're using a Volkswagen-type approach ;-) */
+
+        sh "docker run --rm -it  -p 8001:8001/tcp crudpgfastapi:latest"
+        
     }
 
     stage('Push image') {
@@ -31,9 +38,7 @@ node {
          * First, the incremental build number from Jenkins
          * Second, the 'latest' tag.
          * Pushing multiple tags is cheap, as all the layers are reused. */
-        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
+        sh "docker push tiagoBarbano/crudpgfastapi:latest"
         }
     }
 }
