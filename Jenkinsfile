@@ -11,7 +11,10 @@ node {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
 
-        app = docker.build("tiagoBarbano/crud_pg_fastapi_redis")
+        //app = docker.build("tiagoBarbano/crud_pg_fastapi_redis")
+        
+        sh "docker build . -t crud:py"
+        
     }
 
     stage('Test image') {
