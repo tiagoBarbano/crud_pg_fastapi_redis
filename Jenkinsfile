@@ -40,5 +40,5 @@ node {
          * Pushing multiple tags is cheap, as all the layers are reused. */
         sh "docker push tiagoBarbano/crudpgfastapi:latest"
         }
-    }
 }
+
