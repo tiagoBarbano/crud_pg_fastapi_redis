@@ -29,7 +29,7 @@ node {
         /* Ideally, we would run a test framework against our image.
          * For this example, we're using a Volkswagen-type approach ;-) */
 
-        sh "docker run --rm -it  -p 8001:8001/tcp crudpgfastapi:latest"
+        sh "docker run --rm -p 8001:8001/tcp crudpgfastapi:latest"
         
     }
 
