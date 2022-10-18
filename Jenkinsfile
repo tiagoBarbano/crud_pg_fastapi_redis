@@ -10,9 +10,10 @@ node {
     }
 
     stage('Test image') {
-        app.inside {
-            sh 'make test'
-        }
+        sh "echo TESTE"
+        //app.inside {
+        //    sh 'make test'
+        //}
     }
         
     //stage('Run image') {
