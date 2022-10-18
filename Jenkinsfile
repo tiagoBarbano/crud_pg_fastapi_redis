@@ -11,9 +11,9 @@ node {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
 
-        //app = docker.build("tiagoBarbano/crud_pg_fastapi_redis")
-        
-        sh "docker build --pull --rm -f 'Dockerfile' -t crudpgfastapi:latest ."
+        app = docker.build("crudpgfastapi:latest")
+        //def customImage = docker.build("my-image:${env.BUILD_ID}")
+        //sh "docker build --pull --rm -f 'Dockerfile' -t crudpgfastapi:latest ."
         
     }
 
