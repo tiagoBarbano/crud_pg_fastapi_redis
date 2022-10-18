@@ -27,8 +27,12 @@ node {
         docker.withRegistry('https://registry-1.docker.io/v2/', 'GitHub') {
             app.push()
         }
-
-
     }
+
+    post {
+		always {
+			sh 'docker logout'
+		}
+	}
 }
 
