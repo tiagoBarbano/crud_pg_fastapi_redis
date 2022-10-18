@@ -5,6 +5,7 @@ RUN mkdir src
 COPY requirements.txt src
 COPY app src/app
 COPY main.py src
+COPY .env src
 
 WORKDIR src
 RUN pip install --no-cache-dir --upgrade -r requirements.txt

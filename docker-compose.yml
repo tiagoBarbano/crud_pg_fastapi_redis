@@ -176,4 +176,3 @@ volumes:
 
 networks:
   trader-network:
-

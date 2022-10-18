@@ -29,7 +29,7 @@ node {
         /* Ideally, we would run a test framework against our image.
          * For this example, we're using a Volkswagen-type approach ;-) */
 
-        sh "docker run --rm -p 8001:8001/tcp crudpgfastapi:latest --env-file=.env"
+        sh "docker run --rm -p 8001:8001/tcp --env-file src/.env  crudpgfastapi:latest"
         
     }
 
