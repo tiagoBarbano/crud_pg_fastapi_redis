@@ -6,7 +6,7 @@ node {
     }
 
     stage('Build image') {
-        app = docker.build("tiagoBarbano/crudpgfastapi:latest")      
+        app = docker.build("tiagobarbano/crudpgfastapi:latest")      
     }
 
     stage('Test image') {
