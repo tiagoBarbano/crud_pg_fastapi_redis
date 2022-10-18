@@ -6,7 +6,7 @@ node {
     }
 
     stage('Build image') {
-        app = docker.build("crudpgfastapi:latest")      
+        app = docker.build("tiagoBarbano/crudpgfastapi:latest")      
     }
 
     stage('Test image') {
@@ -24,8 +24,11 @@ node {
         
     //}
     stage('Push image') {
-        app.push()
-        app.push('latest')
+        docker.withRegistry('https://registry-1.docker.io/v2/', 'GitHub') {
+            app.push()
+        }
+
+
     }
 }
 
