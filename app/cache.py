@@ -7,13 +7,14 @@ from app.database import async_session
 from app.model import UserModel
 from app.config import Settings
 
+
 settings = Settings()
 
 router = APIRouter()
 
 redis = get_redis_connection(host=settings.redis_host, 
                              port=settings.redis_port, 
-                             password=settings.redis_password, 
+                             #password=settings.redis_password, 
                              decode_responses=True)
 
 class Order(JsonModel):

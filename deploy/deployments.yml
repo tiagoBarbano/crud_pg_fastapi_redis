@@ -1,0 +1,36 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: crudpgfastapi-deployment
+  namespace: teste
+  labels:
+    app: crudpgfastapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: crudpgfastapi
+  template:
+    metadata:
+      labels:
+        app: crudpgfastapi
+    spec:
+      containers:
+        - name: crudpgfastapi
+          image: tiagobarbano/crudpgfastapi:latest
+          ports:
+            - containerPort: 8001
+          env:
+            - name: REDIS_HOST
+              value: "redis-18027.c98.us-east-1-4.ec2.cloud.redislabs.com"   
+            - name: REDIS_PORT
+              value: "18027"
+            - name: ASYNCPG_URL
+              value: "postgresql+asyncpg://bwcelvdd:uwjUQ68ABrTdaqwVLXpOtgDHxDNWvPGd@kesavan.db.elephantsql.com/bwcelvdd"
+            - name: REDIS_PASSWORD
+              value: "rvQRG3d1KsGElUhGgxanebrx1soeYUfm"
+            - name: REPEAT_EVENT
+              value: "30"              
+   
+
+                

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: crudpgfastapi-service
+  namespace: teste
+  labels:
+    run: crudpgfastapi
+spec:
+  type: NodePort
+  selector:
+    run: crudpgfastapi
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001

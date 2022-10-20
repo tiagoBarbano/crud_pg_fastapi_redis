@@ -8,6 +8,13 @@ class Settings(BaseSettings):
     redis_port: int
     redis_password: str
     repeat_event: int
+    app_url: str
+    pyctuator_endpoint_url: str
+    registration_url: str
+    metrics: str
+    db_check: str
+    host_jaeger: str
+    port_jaeger: int
     
     class Config:
         env_file = ".env"

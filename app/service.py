@@ -23,8 +23,8 @@ async def get_users():
     return users
 
 @router.get("/", response_model=list[UserSchema])
-async def get_users_default(db: AsyncSession = Depends(get_db)):
-    users = await get_all_users(db)
+async def get_users_default():
+    users = await get_all_users()
     return users
 
 @router.get("/{id}", response_model=UserSchema)

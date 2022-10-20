@@ -5,13 +5,20 @@ services:
     volumes:
       - .:/usr/app
     ports:
-      - 8001:8001
+      - "8001-8021:8001"
     environment:
       ASYNCPG_URL: postgresql+asyncpg://postgres:changeme@postgres:5432/postgres
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: default
       REPEAT_EVENT: 30
+      APP_URL: http://crud:8001
+      PYCTUATOR_ENDPOINT_URL: http://crud:8001/pyctuator
+      REGISTRATION_URL: http://actuator-admin:8080/instances
+      METRICS: http://crud.localhost:8001/metrics
+      DB_CHECK: postgresql+psycopg2://postgres:changeme@postgres:5432/postgres
+      HOST_JAEGER: jaeger-all-in-one
+      PORT_JAEGER: 6831
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.crud.rule=Host(`crud.localhost`)"      
@@ -168,7 +175,58 @@ services:
         reservations:
           cpus: '0.25'
           memory: 400M        
-  
+
+  actuator-admin:
+    image: michayaak/spring-boot-admin:2.2.3-1
+    ports:
+      - "8090:8080"
+    networks:
+      - trader-network
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.actuator-admin.rule=Host(`actuator-admin.localhost`)"             
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 400M
+
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one
+    #command: ["--reporter.grpc.host-port=jaeger-all-in-one:14250", "--reporter.grpc.retry.max=1000"]
+    ports:
+      - "6831:6831/udp"      
+      - "16686:16686"
+      - "14268"
+      - "14250"
+    labels:
+      traefik.http.routers.jaeger.rule: Host(`jaeger.localhost`)
+      traefik.http.routers.jaeger.entrypoints: web
+      traefik.http.routers.jaeger.service: jaeger
+      traefik.http.services.jaeger.loadbalancer.server.port: 16686
+    networks:
+      - trader-network
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 9080:8080
+    networks:
+      - trader-network
+    restart: always
+    deploy:
+      mode: global                 
+
 volumes:
   redis_data: {}
   postgres: {}

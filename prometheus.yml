@@ -14,3 +14,7 @@ scrape_configs:
   - job_name: "crud"
     static_configs:
       - targets: ["crud:8001"]
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ['cadvisor:8080']

@@ -3,14 +3,28 @@ from app.model import UserModel
 from sqlalchemy import update, delete
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import SQLAlchemyError
+from fastapi import HTTPException, status
+from app.database import async_session
 
 # Retrieve all users present in the database
-async def get_all_users(db: AsyncSession):
-    query = select(UserModel)
-    users = await db.execute(query)
-    users = users.scalars().all()
-    return users
-
+async def get_all_users():
+    try:
+        async with async_session() as session:
+            query = select(UserModel)
+            users = await session.execute(query)
+            users = users.scalars().all()
+            await session.close()
+            return users
+    except SQLAlchemyError as sql_ex:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(sql_ex))
+    except HTTPException as http_ex:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(http_ex))
+    finally:
+        await session.close()    
+    
 # Retrieve a user with a matching ID
 async def get_user_by_id(db: AsyncSession, id: int) -> dict:
     query = select(UserModel).where(UserModel.id == id)

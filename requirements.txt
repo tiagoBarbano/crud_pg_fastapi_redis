@@ -9,4 +9,11 @@ redis_om
 fastapi_utils
 starlette_prometheus
 opentelemetry-instrumentation-fastapi==0.32b0
+opentelemetry-sdk==1.12.0rc2
+opentelemetry-exporter-jaeger-thrift==1.12.0rc2
+opentelemetry-sdk==1.12.0rc2
+opentelemetry-instrumentation-redis==0.32b0
+opentelemetry-instrumentation-sqlalchemy==0.32b0
 prometheus-fastapi-instrumentator
+pyctuator
+psycopg2-binary
